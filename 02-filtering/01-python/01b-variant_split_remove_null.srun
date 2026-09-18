@@ -1,0 +1,34 @@
+#!/bin/bash
+#SBATCH --job-name=remove_null
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load anaconda3/22.10.0
+module load bcftools
+module load htslib
+
+# python3 program1_biallelic.py
+
+# For cleaning of variants split file. Must be unzipped first.
+bgzip -d genotypes_all_sites_variant.vcf.gz
+
+bcftools head genotypes_all_sites_variant.vcf > tempheader.vcf
+tail -n +2056 genotypes_all_sites_variant.vcf > tempsites.vcf
+
+# Re-zip the file.
+bgzip genotypes_all_sites_variant.vcf
+# rm genotypes_all_sites_variant.vcf
+
+python3 program3b_variants_split_clean.py # remove any lines with null cells from vcf
+
+cat tempsites.vcf >> tempheader.vcf
+rm tempsites.vcf
+mv tempheader.vcf genotypes_all_sites_variant_cleaned.vcf
+bgzip -f genotypes_all_sites_variant_cleaned.vcf
+tabix -f genotypes_all_sites_variant_cleaned.vcf.gz -p vcf

@@ -1,0 +1,23 @@
+#!/bin/bash
+#SBATCH --job-name=dsuite_corrections
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=10:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+# Set up directories.
+mkdir dtrios_output
+mv sets_files/*tree.txt dtrios_output
+cd ./dtrios_output
+mkdir gila globe goldenvalley lincoln payson sanjuan santafe
+cd ..
+
+# Separate interspecific trios from intraspecific trios in sympatric populations.
+# python sort_trios.py
+
+# False discovery rate correction.
+python FDR_no_sort.py

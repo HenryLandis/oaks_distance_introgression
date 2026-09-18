@@ -1,0 +1,17 @@
+#!/bin/bash
+#SBATCH --job-name=iqtree
+#SBATCH --partition=cas 
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=128G
+#SBATCH --time=72:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load iqtree
+iqtree2 -s data.phy -st DNA \
+    -m MFP -B 1000 -T AUTO -wbt \
+    -nm 2000 -ninit 250 -ntop 50 \
+    --prefix iqtree_output

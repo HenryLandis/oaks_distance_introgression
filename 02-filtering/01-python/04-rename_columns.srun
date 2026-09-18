@@ -1,0 +1,20 @@
+#!/bin/bash
+#SBATCH --job-name=rename_columns
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=16G
+#SBATCH --time=24:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load bcftools
+
+bcftools reheader -s inds_reheader.txt \
+    -o genotypes_all_sites_variant_retained_reheader.vcf.gz \
+    genotypes_all_sites_variant_retained_maxmissing_0_75.vcf.gz
+bcftools reheader -s inds_reheader.txt \
+    -o genotypes_all_sites_reheader.vcf.gz \
+    genotypes_all_sites_maxmissing_0_75.vcf.gz

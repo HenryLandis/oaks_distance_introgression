@@ -1,0 +1,80 @@
+#!/bin/bash
+#SBATCH --job-name=fbranch
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=10:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+# Trees pruned to include only individuals from the specified population.
+# Pruning performed in R package ape.
+
+mkdir fbranch_output
+cd ./fbranch_output
+mkdir gila globe goldenvalley lincoln payson sanjuan santafe
+
+cd ./payson
+../../Dsuite/Build/Dsuite Fbranch \
+    ../../fbranch_trees/payson_rooted.tre \
+    ../../dtrios_output/inds_payson_tree.txt > fbranch.txt
+../../Dsuite/utils/dtools.py \
+    --run-name fbranch_payson \
+    --outgroup Reference \
+    fbranch.txt ../../fbranch_trees/payson_rooted.tre
+
+cd ../gila
+../../Dsuite/Build/Dsuite Fbranch \
+    ../../fbranch_trees/gila_rooted.tre \
+    ../../dtrios_output/inds_gila_tree.txt > fbranch.txt
+../../Dsuite/utils/dtools.py \
+    --run-name fbranch_gila \
+    --outgroup Reference \
+    fbranch.txt ../../fbranch_trees/gila_rooted.tre
+
+cd ../globe
+../../Dsuite/Build/Dsuite Fbranch \
+    ../../fbranch_trees/globe_rooted.tre \
+    ../../dtrios_output/inds_globe_tree.txt > fbranch.txt
+../../Dsuite/utils/dtools.py \
+    --run-name fbranch_globe \
+    --outgroup Reference \
+    fbranch.txt ../../fbranch_trees/globe_rooted.tre
+
+cd ../lincoln
+../../Dsuite/Build/Dsuite Fbranch \
+    ../../fbranch_trees/lincoln_rooted.tre \
+    ../../dtrios_output/inds_lincoln_tree.txt > fbranch.txt
+../../Dsuite/utils/dtools.py \
+    --run-name fbranch_lincoln \
+    --outgroup Reference \
+    fbranch.txt ../../fbranch_trees/lincoln_rooted.tre
+
+cd ../sanjuan
+../../Dsuite/Build/Dsuite Fbranch \
+    ../../fbranch_trees/sanjuan_rooted.tre \
+    ../../dtrios_output/inds_sanjuan_tree.txt > fbranch.txt
+../../Dsuite/utils/dtools.py \
+    --run-name fbranch_sanjuan \
+    --outgroup Reference \
+    fbranch.txt ../../fbranch_trees/sanjuan_rooted.tre
+
+cd ../santafe
+../../Dsuite/Build/Dsuite Fbranch \
+    ../../fbranch_trees/santafe_rooted.tre \
+    ../../dtrios_output/inds_santafe_tree.txt > fbranch.txt
+../../Dsuite/utils/dtools.py \
+    --run-name fbranch_santafe \
+    --outgroup Reference \
+    fbranch.txt ../../fbranch_trees/santafe_rooted.tre
+
+cd ../goldenvalley
+../../Dsuite/Build/Dsuite Fbranch \
+    ../../fbranch_trees/goldenvalley_rooted.tre \
+    ../../dtrios_output/inds_goldenvalley_tree.txt > fbranch.txt
+../../Dsuite/utils/dtools.py \
+    --run-name fbranch_goldenvalley \
+    --outgroup Reference \
+    fbranch.txt ../../fbranch_trees/goldenvalley_rooted.tre

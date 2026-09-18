@@ -1,0 +1,46 @@
+#!/bin/bash
+#SBATCH --job-name=plink_pca
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=16G
+#SBATCH --time=10:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load plink # gets plink 2.0
+module load bcftools
+module load htslib
+
+# Get only the column names but leave out the rest of the header.
+# tail command depends on the header size.
+bcftools view ../../02-filtering/01-python/genotypes_all_sites_variant_retained_final2.vcf.gz| tail -n +2068 > tempsites.vcf
+python get_pairwise_vcfs.py
+rm tempsites.vcf
+
+plink2 --vcf pca_075_gam_gri.vcf \
+    --double-id \
+    --allow-extra-chr \
+    --set-missing-var-ids @:# \
+    --make-bed \
+    --pca \
+    --out pca_075_gam_gri
+
+plink2 --vcf pca_075_gam_tur.vcf \
+    --double-id \
+    --allow-extra-chr \
+    --set-missing-var-ids @:# \
+    --make-bed \
+    --pca \
+    --out pca_075_gam_tur
+
+plink2 --vcf pca_075_gri_tur.vcf \
+    --double-id \
+    --allow-extra-chr \
+    --set-missing-var-ids @:# \
+    --make-bed \
+    --pca \
+    --out pca_075_gri_tur
+
+

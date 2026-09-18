@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH --job-name=plink_pca
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=16G
+#SBATCH --time=10:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load plink # gets plink 2.0
+
+plink2 --vcf ../../02-filtering/01-python/genotypes_all_sites_variant_retained_final2.vcf.gz \
+    --double-id \
+    --allow-extra-chr \
+    --set-missing-var-ids @:# \
+    --make-bed \
+    --pca \
+    --out pca_075
+
+# allow extra chars tells plink to accept non-human genomes
+# missing IDs flag creates them from chr/pos columns
+# bed output can be sent to admixture
+
+

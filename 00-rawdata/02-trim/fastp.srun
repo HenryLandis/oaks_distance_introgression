@@ -1,0 +1,21 @@
+#!/bin/bash
+#SBATCH --job-name=fastp
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=16G
+#SBATCH --time=10:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load fastp
+cd ../01-rawdata/02-October2025/fastqs
+
+# namelist.txt is a file that contains the prefix of each sample, one per line
+
+# For paired-end reads
+# while read name; do fastp -I $name*R1.fastq.gz -i $name*R2.fastq.gz -O $name.trimmed.R1.fastq.gz -o $name.trimmed.R2.fastq.gz -j $name.json -h $name.html; done < namelist.txt
+
+# For single-end reads
+while read name; do fastp -i ${name}*.fastq.gz -o ../fastqs_trimmed/${name}_trimmed.fastq.gz -j $name.json -h $name.html; done < namelist.txt

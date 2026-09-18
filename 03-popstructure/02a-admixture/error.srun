@@ -1,0 +1,21 @@
+#!/bin/bash
+#SBATCH --job-name=error
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=8G
+#SBATCH --time=24:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+for h in {1..12};
+do
+    cd ./admixk${h}
+    for j in {1..10};
+    do 
+        tail -2 struct_k${h}_${j}.out | head -1 | tail -c 8 
+    done > error.txt
+    awk '{s+=$1}END{print s/NR}' error.txt >> ../CV.txt
+    cd ..
+done

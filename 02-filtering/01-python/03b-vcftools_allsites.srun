@@ -1,0 +1,46 @@
+#!/bin/bash
+#SBATCH --job-name=missing_data
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=24:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load vcftools
+module load bcftools
+module load htslib
+
+# Invariant sites. Removes GATK tags, indels, and missing data > 25%.
+vcftools --gzvcf genotypes_all_sites_invariant_filtered.vcf.gz \
+	--remove-filtered-all \
+	--remove-indels \
+	--max-missing 0.75 \
+	--recode --stdout | bgzip -c > temp_invariant.vcf.gz
+
+# Variant sites. Removes GATK tags, non-biallelic, indels, MAF < 0.05, 
+# and missing data > 25%.
+vcftools --gzvcf genotypes_all_sites_variant_filtered.vcf.gz \
+	--remove-filtered-all \
+	--min-alleles 2 --max-alleles 2 \
+	--remove-indels \
+	--maf 0.05 --max-maf 0.95 \
+	--max-missing 0.75 \
+	--recode --stdout | bgzip -c > genotypes_all_sites_variant_retained_maxmissing_0_75.vcf.gz
+
+# Index the files.
+tabix -f temp_invariant.vcf.gz
+tabix -f genotypes_all_sites_variant_retained_maxmissing_0_75.vcf.gz
+
+# Concatenate.
+bcftools concat \
+	--allow-overlaps \
+	 genotypes_all_sites_variant_retained_maxmissing_0_75.vcf.gz temp_invariant.vcf.gz \
+	-O z -o genotypes_all_sites_maxmissing_0_75.vcf.gz
+
+# Remove the invariants split.
+rm temp_invariant.vcf.gz
+rm temp_invariant.vcf.gz.tbi

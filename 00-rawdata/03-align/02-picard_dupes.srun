@@ -1,0 +1,32 @@
+#!/bin/bash
+#SBATCH --job-name=picard
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load java
+module load picard
+module load samtools
+
+while read name;
+do
+    picard MarkDuplicates \
+    I=bam_files/${name}_trimmed.bam \
+    M=picard_files/${name}_metrics.txt \
+    O=picard_files/${name}_marked.bam \
+    REMOVE_DUPLICATES=true \
+    VALIDATION_STRINGENCY=SILENT
+done < namelist.txt
+
+# Sort and index the marked files.
+while read name;
+do
+    samtools sort picard_files/${name}_marked.bam -o picard_files/${name}_marked.bam
+    samtools index -b picard_files/${name}_marked.bam -o picard_files/${name}_marked.bai
+done < namelist.txt

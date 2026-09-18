@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH --job-name=variant_filters
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load gatk/4.2.2.0
+module load samtools
+module load bcftools
+module load htslib
+
+# bgzip -kf genotypes_variants_only_biallelic.vcf
+# bcftools sort genotypes_variants_only_biallelic.vcf.gz
+# bcftools index genotypes_variants_only_biallelic.vcf.gz -o genotypes_variants_only_biallelic.vcf.tbi
+# tabix -f genotypes_variants_only_biallelic.vcf.gz
+
+# For variant portion of all-sites file.
+gatk --java-options "-Xmx4g" VariantFiltration \
+	-R ../../../genome/Qlobata_genome.fasta \
+    -V genotypes_all_sites_variant_cleaned.vcf.gz \
+	-O genotypes_all_sites_variant_filtered.vcf.gz \
+	-filter "QD < 2.0" --filter-name "QD2" \
+	-filter "QUAL < 30.0" --filter-name "QUAL30" \
+	-filter "SOR > 3.0" --filter-name "SOR3" \
+	-filter "FS > 60.0" --filter-name "FS60" \
+	-filter "MQ < 40.0" --filter-name "MQ40" \
+ 	-filter "MQRankSum < -12.5" --filter-name "MQRankSum-12.5" \
+	-filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8" \
+	-filter "ExcessHet > 50.0" --filter-name "ExcessHet50" \
+	--genotype-filter-expression "DP < 10" --genotype-filter-name "DP10" \
+	--set-filtered-genotype-to-no-call true

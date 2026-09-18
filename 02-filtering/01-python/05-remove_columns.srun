@@ -1,0 +1,23 @@
+#!/bin/bash
+#SBATCH --job-name=remove_columns
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=16G
+#SBATCH --time=24:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load bcftools
+
+# Version of the VCF files that removes five samples with >85% missing data
+# after filtering.
+bcftools view genotypes_all_sites_variant_retained_reheader.vcf.gz \
+    -s ^075_grisea,311_gambelii,328_gambelii,384_gambelii,401_gambelii,442_grisea,446_turbinella \
+    -o genotypes_all_sites_variant_retained_final2.vcf.gz
+
+bcftools view genotypes_all_sites_reheader.vcf.gz \
+    -s ^075_grisea,311_gambelii,328_gambelii,384_gambelii,401_gambelii,442_grisea,446_turbinella \
+    -o genotypes_all_sites_final2.vcf.gz

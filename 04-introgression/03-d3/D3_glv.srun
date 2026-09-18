@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --job-name=d3
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=150G
+#SBATCH --time=96:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+# In each input trios file, duplicate the first line to bypass a glitch where
+# the first line gets skipped.
+python calculate_D_D3_glv.py > output_glv.txt

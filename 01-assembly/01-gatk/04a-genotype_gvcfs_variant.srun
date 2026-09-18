@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH --job-name=genotype_gvcfs
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+export TILEDB_DISABLE_FILE_LOCKING=1 # sets for shell and all processes from it
+
+module load java/17.0.3
+module load gatk/4.2.2.0
+module load samtools
+
+# Variant sites only.
+gatk --java-options "-Xmx4g" GenotypeGVCFs \
+    -R ../../../genome/Qlobata_genome.fasta \
+    --genomicsdb-shared-posixfs-optimizations \
+    -V gendb://gdb_output \
+    -O genotypes_variants_only.vcf.gz \

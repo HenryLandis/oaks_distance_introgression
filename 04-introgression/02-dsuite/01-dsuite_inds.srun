@@ -1,0 +1,34 @@
+#!/bin/bash
+#SBATCH --job-name=dsuite_inds
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=10:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+# ./Dsuite/Build/Dsuite Dtrios -c -t newick_inds.tre --ABBAclustering \
+#    input.vcf inds.txt
+
+./Dsuite/Build/Dsuite Dtrios -c -t contree_rooted.tre input.vcf.gz \
+    sets_files/inds_payson.txt
+
+./Dsuite/Build/Dsuite Dtrios -c -t contree_rooted.tre input.vcf.gz \
+    sets_files/inds_gila.txt
+    
+./Dsuite/Build/Dsuite Dtrios -c -t contree_rooted.tre input.vcf.gz \
+    sets_files/inds_globe.txt
+
+./Dsuite/Build/Dsuite Dtrios -c -t contree_rooted.tre input.vcf.gz \
+    sets_files/inds_lincoln.txt
+
+./Dsuite/Build/Dsuite Dtrios -c -t contree_rooted.tre input.vcf.gz \
+    sets_files/inds_goldenvalley.txt
+
+./Dsuite/Build/Dsuite Dtrios -c -t contree_rooted.tre input.vcf.gz \
+    sets_files/inds_sanjuan.txt
+
+./Dsuite/Build/Dsuite Dtrios -c -t contree_rooted.tre input.vcf.gz \
+    sets_files/inds_santafe.txt

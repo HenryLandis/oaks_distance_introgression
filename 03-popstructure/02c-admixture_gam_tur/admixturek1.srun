@@ -1,0 +1,21 @@
+#!/bin/bash
+#SBATCH --job-name=admixture
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --array=1-10
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=8G
+#SBATCH --time=24:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+admixture="/data/lab/busch/henry/quercus/radseq/03-popstructure/02a-admixture/admixture"
+strseed=$(shuf -n 1 -i 0-2147483647)
+
+$admixture -s $strseed --cv=10 -j4 ../01-pca/pca_075_gam_tur.bed 1 \
+    > admixk1/struct_k1_${SLURM_ARRAY_TASK_ID}.out
+
+mv pca_075_gam_tur.1.P admixk1/pca_075_gam_tur.1_${SLURM_ARRAY_TASK_ID}.P
+mv pca_075_gam_tur.1.Q admixk1/pca_075_gam_tur.1_${SLURM_ARRAY_TASK_ID}.Q

@@ -1,0 +1,33 @@
+#!/bin/bash
+#SBATCH --job-name=variant_split
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load vcftools
+module load bcftools
+module load htslib
+
+# Split all-sites file into variant and invariant sites. Both require different
+# filtering pipelines.
+
+# Variant sites only.
+vcftools --gzvcf genotypes_all_sites.vcf.gz \
+	--mac 1 \
+	--recode --stdout | bgzip -c > genotypes_all_sites_variant.vcf.gz
+
+# Invariant sites only.
+vcftools --gzvcf genotypes_all_sites.vcf.gz \
+	--max-maf 0 \
+	--max-alleles 1 \
+	--recode --stdout | bgzip -c > genotypes_all_sites_invariant.vcf.gz
+
+# Index the split files.
+tabix genotypes_all_sites_variant.vcf.gz
+tabix genotypes_all_sites_invariant.vcf.gz

@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=bedtools_intervals
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load bedtools
+
+# Run these lines one at a time (comment out when not in use).
+# Output goes to directory specified in SBATCH command.
+
+# bedtools bamtobed -i ../../00-rawdata/03-align/picard_files/rad_merged.bam
+bedtools merge -i rad_merged.bed # change name after

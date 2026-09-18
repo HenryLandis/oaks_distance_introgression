@@ -1,0 +1,140 @@
+#!/bin/bash
+#SBATCH --job-name=remove_null
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load anaconda3/22.10.0
+module load bcftools
+module load htslib
+
+# python3 program1_biallelic.py
+
+# For cleaning of invariant sites split file. Must be unzipped first.
+bgzip -d genotypes_all_sites_invariant.vcf.gz
+
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header01.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header02.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header03.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header04.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header05.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header06.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header07.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header08.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header09.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header10.vcf
+bcftools head genotypes_all_sites_invariant.vcf > all_sites_pieces/header11.vcf
+
+# Adjust based on the size of the header.
+head -n 10002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_01.vcf
+head -n 20002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_02.vcf
+head -n 30002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_03.vcf
+head -n 40002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_04.vcf
+head -n 50002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_05.vcf
+head -n 60002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_06.vcf
+head -n 70002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_07.vcf
+head -n 80002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_08.vcf
+head -n 90002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_09.vcf
+head -n 100002055 genotypes_all_sites_invariant.vcf | tail -n 10000000 > all_sites_pieces/all_sites_10.vcf
+tail -n 5976086 genotypes_all_sites_invariant.vcf > all_sites_pieces/all_sites_11.vcf
+
+# Re-zip the file.
+bgzip genotypes_all_sites_invariant.vcf
+# rm genotypes_all_sites_invariant.vcf
+
+python3 program3c_invariant_split_clean.py # remove any lines with null cells from vcf
+
+cat all_sites_pieces/all_sites_01.vcf >> all_sites_pieces/header01.vcf
+bgzip -f all_sites_pieces/header01.vcf
+tabix all_sites_pieces/header01.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_01.vcf
+cat all_sites_pieces/all_sites_02.vcf >> all_sites_pieces/header02.vcf
+bgzip -f all_sites_pieces/header02.vcf
+tabix all_sites_pieces/header02.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_02.vcf
+cat all_sites_pieces/all_sites_03.vcf >> all_sites_pieces/header03.vcf
+bgzip -f all_sites_pieces/header03.vcf
+tabix all_sites_pieces/header03.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_03.vcf
+cat all_sites_pieces/all_sites_04.vcf >> all_sites_pieces/header04.vcf
+bgzip -f all_sites_pieces/header04.vcf
+tabix all_sites_pieces/header04.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_04.vcf
+cat all_sites_pieces/all_sites_05.vcf >> all_sites_pieces/header05.vcf
+bgzip -f all_sites_pieces/header05.vcf
+tabix all_sites_pieces/header05.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_05.vcf
+cat all_sites_pieces/all_sites_06.vcf >> all_sites_pieces/header06.vcf
+bgzip -f all_sites_pieces/header06.vcf
+tabix all_sites_pieces/header06.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_06.vcf
+cat all_sites_pieces/all_sites_07.vcf >> all_sites_pieces/header07.vcf
+bgzip -f all_sites_pieces/header07.vcf
+tabix all_sites_pieces/header07.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_07.vcf
+cat all_sites_pieces/all_sites_08.vcf >> all_sites_pieces/header08.vcf
+bgzip -f all_sites_pieces/header08.vcf
+tabix all_sites_pieces/header08.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_08.vcf
+cat all_sites_pieces/all_sites_09.vcf >> all_sites_pieces/header09.vcf
+bgzip -f all_sites_pieces/header09.vcf
+tabix all_sites_pieces/header09.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_09.vcf
+cat all_sites_pieces/all_sites_10.vcf >> all_sites_pieces/header10.vcf
+bgzip -f all_sites_pieces/header10.vcf
+tabix all_sites_pieces/header10.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_10.vcf
+cat all_sites_pieces/all_sites_11.vcf >> all_sites_pieces/header11.vcf
+bgzip -f all_sites_pieces/header11.vcf
+tabix all_sites_pieces/header11.vcf.gz -p vcf
+rm all_sites_pieces/all_sites_11.vcf
+
+#bgzip -f all_sites_pieces/header1.vcf
+#bgzip -f all_sites_pieces/header2.vcf
+#bcftools sort -o all_sites_pieces/header1.vcf.gz all_sites_pieces/header1.vcf.gz
+#bcftools sort -o all_sites_pieces/header2.vcf.gz all_sites_pieces/header2.vcf.gz
+#bcftools index -t -o all_sites_pieces/header1.vcf.gz.tbi all_sites_pieces/header1.vcf.gz
+#bcftools index -t -o all_sites_pieces/header2.vcf.gz.tbi all_sites_pieces/header2.vcf.gz
+
+bcftools concat --allow-overlaps -O z -o genotypes_all_sites_invariant_cleaned.vcf.gz \
+    all_sites_pieces/header01.vcf.gz \
+    all_sites_pieces/header02.vcf.gz \
+    all_sites_pieces/header03.vcf.gz \
+    all_sites_pieces/header04.vcf.gz \
+    all_sites_pieces/header05.vcf.gz \
+    all_sites_pieces/header06.vcf.gz \
+    all_sites_pieces/header07.vcf.gz \
+    all_sites_pieces/header08.vcf.gz \
+    all_sites_pieces/header09.vcf.gz \
+    all_sites_pieces/header10.vcf.gz \
+    all_sites_pieces/header11.vcf.gz \
+
+tabix -f genotypes_all_sites_invariant_cleaned.vcf.gz
+
+rm all_sites_pieces/header01.vcf.gz
+rm all_sites_pieces/header01.vcf.gz.tbi
+rm all_sites_pieces/header02.vcf.gz
+rm all_sites_pieces/header02.vcf.gz.tbi
+rm all_sites_pieces/header03.vcf.gz
+rm all_sites_pieces/header03.vcf.gz.tbi
+rm all_sites_pieces/header04.vcf.gz
+rm all_sites_pieces/header04.vcf.gz.tbi
+rm all_sites_pieces/header05.vcf.gz
+rm all_sites_pieces/header05.vcf.gz.tbi
+rm all_sites_pieces/header06.vcf.gz
+rm all_sites_pieces/header06.vcf.gz.tbi
+rm all_sites_pieces/header07.vcf.gz
+rm all_sites_pieces/header07.vcf.gz.tbi
+rm all_sites_pieces/header08.vcf.gz
+rm all_sites_pieces/header08.vcf.gz.tbi
+rm all_sites_pieces/header09.vcf.gz
+rm all_sites_pieces/header09.vcf.gz.tbi
+rm all_sites_pieces/header10.vcf.gz
+rm all_sites_pieces/header10.vcf.gz.tbi
+rm all_sites_pieces/header11.vcf.gz
+rm all_sites_pieces/header11.vcf.gz.tbi

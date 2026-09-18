@@ -1,0 +1,28 @@
+#!/bin/bash
+#SBATCH --job-name=haplocaller
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load java/17.0.3
+module load samtools
+module load gatk/4.2.2.0
+
+#gatk HaplotypeCaller --java-options "-Xmx4g" \
+#    -R /data/lab/busch/henry/quercus/genome/Qlobata_genome.fasta \
+#    -I ../../00-rawdata/03-align/picard_files/rad_merged.bam \
+#    -O vcf_files/rad_merged.g.vcf.gz -ERC GVCF
+
+while read name;
+do
+    gatk HaplotypeCaller --java-options "-Xmx4g" \
+    -R /data/lab/busch/henry/quercus/genome/Qlobata_genome.fasta \
+    -I ../../00-rawdata/03-align/picard_files/${name}_marked.bam \
+    -O vcf_files/${name}.g.vcf.gz -ERC GVCF
+done < namelist.txt

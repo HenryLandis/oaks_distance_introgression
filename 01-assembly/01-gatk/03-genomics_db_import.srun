@@ -1,0 +1,29 @@
+#!/bin/bash
+#SBATCH --job-name=gdbimport
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=128G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+# Replacement for CombineGCVF.
+# tmp folder made in kamiak scratch space
+
+module load java/17.0.3
+module load gatk/4.2.2.0
+module load samtools
+
+gatk --java-options "-Xmx512g -Xms4g" \
+    GenomicsDBImport \
+    --genomicsdb-workspace-path gdb_output \
+    --batch-size 45 \
+    --intervals rad_merged_flattened.bed \
+    --sample-name-map namelist.sample_map \
+    --tmp-dir /scratch/user/henry.landis/20260402_222829 \
+    --reader-threads 4 \
+    --merge-input-intervals

@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH --job-name=pixy
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=100G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load htslib
+module load samtools
+
+tabix -f genotypes_all_sites_final2.vcf.gz
+
+pixy --stats pi fst dxy watterson_theta tajima_d \
+    --vcf genotypes_all_sites_final2.vcf.gz \
+    --populations pops2.txt \
+    --n_cores 16 \
+    --window_size 100000 \
+    --fst_type hudson \
+    --fst_components \
+    --output_folder ./pixy_txs_100kb_hudson \
+    #    --bed_file ../../01-assembly/01-gatk/rad_merged_flattened.bed \

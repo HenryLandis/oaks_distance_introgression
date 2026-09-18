@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH --job-name=missing_data
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100G
+#SBATCH --time=24:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load vcftools
+module load bcftools
+module load htslib
+
+# Removes GATK tags, non-biallelic, indels, MAF < 0.05, and missing data > 25%.
+vcftools --gzvcf genotypes_variants_only_filtered.vcf.gz \
+	--remove-filtered-all \
+	--min-alleles 2 --max-alleles 2 \
+	--remove-indels \
+	--maf 0.05 --max-maf 0.95 \
+	--max-missing 0.75 \
+	--recode --stdout | bgzip -c > genotypes_variants_only_maxmissing_0_75.vcf.gz

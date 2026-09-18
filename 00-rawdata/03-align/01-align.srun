@@ -1,0 +1,52 @@
+#!/bin/bash
+#SBATCH --job-name=align
+#SBATCH --partition=cas
+#SBATCH --output=/data/lab/busch/henry/quercus/radseq/logs/out/%j_%x.out
+#SBATCH --error=/data/lab/busch/henry/quercus/radseq/logs/err/%j_%x.err
+#SBATCH --array=1-9
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=16G
+#SBATCH --time=168:00:00
+#SBATCH --mail-user=henry.landis@wsu.edu
+#SBATCH --mail-type=ALL
+
+module load bwa
+module load samtools
+
+# Variables to contain reads.
+# SAMPLIST=$(cat /data/lab/busch/henry/quercus/radseq/00-rawdata/03-align/namelist.txt)
+
+# Variables to subset reads per array.
+A=$(echo $(( ${SLURM_ARRAY_TASK_ID}*15-14 )))
+B=$(echo $(( ${SLURM_ARRAY_TASK_ID}*15 )))
+
+# Choose reads per array.
+SAMPLES=$(sed -n ${A},${B}p /data/lab/busch/henry/quercus/radseq/00-rawdata/03-align/namelist.txt)
+
+# Genome must be indexed before this step.
+# bwa index ../../../genome/Qlobata_genome.fasta
+for i in $SAMPLES
+do
+    bwa mem -R '@RG\tID:'$i'\tSM:'$i'\tLB:library\tPL:ILLUMINA\tDT:2025-09-05'\
+    ../../../genome/Qlobata_genome.fasta \
+    ../01-rawdata/02-October2025/fastqs_trimmed/${i}_trimmed.fastq.gz \
+    > sam_files/${i}_trimmed.sam
+    samtools view -bo bam_files/${i}_trimmed.bam sam_files/${i}_trimmed.sam
+    samtools sort bam_files/${i}_trimmed.bam -o bam_files/${i}_trimmed.bam
+done
+
+#while read name; 
+#do 
+#    bwa mem -R '@RG\tID:foo\tSM:bar\tLB:library1'\
+#    ../../../genome/Qlobata_genome.fasta \
+#    ../01-rawdata/02-October2025/fastqs_trimmed/${name}_trimmed.fastq.gz \
+#    > sam_files/${name}_trimmed.sam
+#done < namelist.txt
+
+# Convert SAM to BAM, then sort.
+#while read name;
+#do
+#    samtools view -bo bam_files/${name}_trimmed.bam sam_files/${name}_trimmed.sam
+#    samtools sort bam_files/${name}_trimmed.bam -o bam_files/${name}_trimmed.bam
+#done < namelist.txt
